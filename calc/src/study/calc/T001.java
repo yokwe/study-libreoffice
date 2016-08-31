@@ -21,6 +21,9 @@ import com.sun.star.uno.XComponentContext;
 // Open blank writer window
 //   https://technology.amis.nl/2006/06/22/getting-started-with-the-openofficeorg-api-part-i-some-basic-writer-operations/
 
+// http://api.libreoffice.org/docs/idl/ref/servicecom_1_1sun_1_1star_1_1sheet_1_1Spreadsheet.html
+// https://wiki.openoffice.org/wiki/Documentation/DevGuide/Spreadsheets/Spreadsheet_Services_-_Overview
+
 public class T001 {
 
 	public static void main(String[] args) {
