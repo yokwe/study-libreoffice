@@ -6,6 +6,7 @@ import com.sun.star.comp.helper.Bootstrap;
 import com.sun.star.container.XEnumeration;
 import com.sun.star.container.XEnumerationAccess;
 import com.sun.star.container.XIndexAccess;
+import com.sun.star.container.XNameAccess;
 import com.sun.star.container.XNamed;
 import com.sun.star.document.UpdateDocMode;
 import com.sun.star.frame.XComponentLoader;
@@ -28,6 +29,7 @@ public class T001 {
 
 	public static void main(String[] args) {
 		// Get the remote office component context
+		XComponent xComponent = null;
 		System.out.println("START");
 		try {
 			XComponentContext xLocalContext = Bootstrap.bootstrap();
@@ -41,8 +43,7 @@ public class T001 {
             };
 
 			String url = "file:///home/hasegawa/Dropbox/Trade/投資損益計算_2016_SAVE.ods";  // existing file
-			XComponent xComponent = xComponentLoader.loadComponentFromURL(url, "_blank", 0, props);
-			
+			xComponent = xComponentLoader.loadComponentFromURL(url, "_blank", 0, props);
 			XSpreadsheets sheets = UnoRuntime.queryInterface(XSpreadsheetDocument.class, xComponent).getSheets();
 			
 			// Enumerate all sheet using index access
@@ -53,10 +54,21 @@ public class T001 {
 				for(int i = 0; i < indexAccess.getCount(); i++) {
 					XSpreadsheet sheet = UnoRuntime.queryInterface(XSpreadsheet.class, indexAccess.getByIndex(i));
 					XNamed named = UnoRuntime.queryInterface(XNamed.class, sheet);
-					System.out.println(i + " : " + named.getName());
+					System.out.println("Index " + i + " - " + named.getName());
 				}
 			}
 			
+			// Enumerate all sheet using name access
+			{
+				XNameAccess nameAccess = UnoRuntime.queryInterface(XNameAccess.class, sheets);
+				System.out.println("name = " + nameAccess.getElementNames().length);
+				for(String name: nameAccess.getElementNames()) {
+					XSpreadsheet sheet = UnoRuntime.queryInterface(XSpreadsheet.class, nameAccess.getByName(name));
+					XNamed named = UnoRuntime.queryInterface(XNamed.class, sheet);
+					System.out.println("Name " + name + " - " + named.getName());
+				}
+			}
+
 			// Enumerate all sheet using enumeration
 			{
 				XEnumerationAccess enumerateAccess = UnoRuntime.queryInterface(XEnumerationAccess.class, sheets);
@@ -64,20 +76,14 @@ public class T001 {
 				while(eumeration.hasMoreElements()) {
 					XSpreadsheet sheet = UnoRuntime.queryInterface(XSpreadsheet.class, eumeration.nextElement());
 					XNamed named = UnoRuntime.queryInterface(XNamed.class, sheet);
-					System.out.println("** " + named.getName());
+					System.out.println("Enum " + named.getName());
 				}
 			}
-			
-			
-			
-			System.out.println("Before SLEEP");
-			Thread.sleep(1000);
-			System.out.println("AFter SLEEP");
-			
-			xComponent.dispose();
 		} catch (Throwable e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			if (xComponent != null) xComponent.dispose();
 		}
 
 		System.out.println("STOP");
